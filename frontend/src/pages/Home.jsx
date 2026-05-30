@@ -13,16 +13,37 @@ export default function Home({ onNavigate }) {
     async function loadDashboard() {
       try {
         setLoading(true);
-        const [equipos, jugadores, cartas, tests] = await Promise.all([
+        const [equiposResult, jugadoresResult, cartasResult, testsResult] = await Promise.allSettled([
           api.getEquipos(),
           api.getJugadores(),
           api.getCartas(),
           api.getTestsStatus(),
         ]);
+
+        const equipos = equiposResult.status === 'fulfilled' && Array.isArray(equiposResult.value)
+          ? equiposResult.value
+          : [];
+        const jugadores = jugadoresResult.status === 'fulfilled' && Array.isArray(jugadoresResult.value)
+          ? jugadoresResult.value
+          : [];
+        const cartas = cartasResult.status === 'fulfilled' && Array.isArray(cartasResult.value)
+          ? cartasResult.value
+          : [];
+        const tests = testsResult.status === 'fulfilled' ? testsResult.value : null;
+
+        if (equiposResult.status === 'rejected') console.error('Error cargando equipos:', equiposResult.reason);
+        if (jugadoresResult.status === 'rejected') console.error('Error cargando jugadores:', jugadoresResult.reason);
+        if (cartasResult.status === 'rejected') console.error('Error cargando cartas:', cartasResult.reason);
+        if (testsResult.status === 'rejected') console.error('Error cargando estado de tests:', testsResult.reason);
+
         setData({ equipos, jugadores, cartas, tests });
-        setError('');
+
+        const allFailed = [equiposResult, jugadoresResult, cartasResult, testsResult]
+          .every((result) => result.status === 'rejected');
+        setError(allFailed ? 'No se pudo cargar el dashboard. Revisa la consola del navegador o el backend.' : '');
       } catch (err) {
-        setError('No se pudo cargar el dashboard. Revisa que el backend esté activo en el puerto 8090.');
+        console.error('Error inesperado al cargar dashboard:', err);
+        setError('No se pudo cargar el dashboard. Revisa la consola del navegador o el backend.');
       } finally {
         setLoading(false);
       }
