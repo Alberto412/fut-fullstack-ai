@@ -1,6 +1,8 @@
 package com.futmanager.controller;
 
+import com.futmanager.dto.EquipoDTO;
 import com.futmanager.entity.Equipo;
+import com.futmanager.mapper.EquipoMapper;
 import com.futmanager.service.EquipoService;
 import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,29 +19,33 @@ import org.springframework.web.bind.annotation.RestController;
 public class EquipoController {
 
     private final EquipoService equipoService;
+    private final EquipoMapper equipoMapper;
 
-    public EquipoController(EquipoService equipoService) {
+    public EquipoController(EquipoService equipoService, EquipoMapper equipoMapper) {
         this.equipoService = equipoService;
+        this.equipoMapper = equipoMapper;
     }
 
     @GetMapping
-    public List<Equipo> listar() {
-        return equipoService.listar();
+    public List<EquipoDTO> listar() {
+        return equipoMapper.toDTOList(equipoService.listar());
     }
 
     @GetMapping("/{id}")
-    public Equipo obtenerPorId(@PathVariable Long id) {
-        return equipoService.obtenerPorId(id);
+    public EquipoDTO obtenerPorId(@PathVariable Long id) {
+        return equipoMapper.toDTO(equipoService.obtenerPorId(id));
     }
 
     @PostMapping
-    public Equipo crear(@RequestBody Equipo equipo) {
-        return equipoService.crear(equipo);
+    public EquipoDTO crear(@RequestBody EquipoDTO equipoDTO) {
+        Equipo equipo = equipoMapper.toEntity(equipoDTO);
+        return equipoMapper.toDTO(equipoService.crear(equipo));
     }
 
     @PutMapping("/{id}")
-    public Equipo actualizar(@PathVariable Long id, @RequestBody Equipo equipo) {
-        return equipoService.actualizar(id, equipo);
+    public EquipoDTO actualizar(@PathVariable Long id, @RequestBody EquipoDTO equipoDTO) {
+        Equipo equipo = equipoMapper.toEntity(equipoDTO);
+        return equipoMapper.toDTO(equipoService.actualizar(id, equipo));
     }
 
     @DeleteMapping("/{id}")

@@ -1,6 +1,8 @@
 package com.futmanager.controller;
 
+import com.futmanager.dto.CartaFUTDTO;
 import com.futmanager.entity.CartaFUT;
+import com.futmanager.mapper.CartaFUTMapper;
 import com.futmanager.service.CartaFUTService;
 import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,29 +19,33 @@ import org.springframework.web.bind.annotation.RestController;
 public class CartaFUTController {
 
     private final CartaFUTService cartaFUTService;
+    private final CartaFUTMapper cartaFUTMapper;
 
-    public CartaFUTController(CartaFUTService cartaFUTService) {
+    public CartaFUTController(CartaFUTService cartaFUTService, CartaFUTMapper cartaFUTMapper) {
         this.cartaFUTService = cartaFUTService;
+        this.cartaFUTMapper = cartaFUTMapper;
     }
 
     @GetMapping
-    public List<CartaFUT> listar() {
-        return cartaFUTService.listar();
+    public List<CartaFUTDTO> listar() {
+        return cartaFUTMapper.toDTOList(cartaFUTService.listar());
     }
 
     @GetMapping("/{id}")
-    public CartaFUT obtenerPorId(@PathVariable Long id) {
-        return cartaFUTService.obtenerPorId(id);
+    public CartaFUTDTO obtenerPorId(@PathVariable Long id) {
+        return cartaFUTMapper.toDTO(cartaFUTService.obtenerPorId(id));
     }
 
     @PostMapping
-    public CartaFUT crear(@RequestBody CartaFUT cartaFUT) {
-        return cartaFUTService.crear(cartaFUT);
+    public CartaFUTDTO crear(@RequestBody CartaFUTDTO cartaFUTDTO) {
+        CartaFUT cartaFUT = cartaFUTMapper.toEntity(cartaFUTDTO);
+        return cartaFUTMapper.toDTO(cartaFUTService.crear(cartaFUT));
     }
 
     @PutMapping("/{id}")
-    public CartaFUT actualizar(@PathVariable Long id, @RequestBody CartaFUT cartaFUT) {
-        return cartaFUTService.actualizar(id, cartaFUT);
+    public CartaFUTDTO actualizar(@PathVariable Long id, @RequestBody CartaFUTDTO cartaFUTDTO) {
+        CartaFUT cartaFUT = cartaFUTMapper.toEntity(cartaFUTDTO);
+        return cartaFUTMapper.toDTO(cartaFUTService.actualizar(id, cartaFUT));
     }
 
     @DeleteMapping("/{id}")

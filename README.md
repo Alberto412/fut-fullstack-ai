@@ -64,7 +64,7 @@ cd backend
 mvn spring-boot:run
 ```
 
-URL: `http://localhost:8090`
+URL: `http://localhost:8081`
 
 La configuración principal usa:
 
@@ -114,7 +114,7 @@ mvn test
 Existe un endpoint de resumen para el frontend:
 
 ```http
-GET http://localhost:8090/api/tests/status
+GET http://localhost:8081/api/tests/status
 ```
 
 Este endpoint no ejecuta Maven. Solo expone un resumen estático del estado esperado de pruebas para que React pueda mostrarlo en la pantalla de tests.
@@ -128,13 +128,27 @@ La carpeta `.codex` documenta un flujo de agentes IA usado para organizar el pro
 - `frontend-agent.md`: decisiones de frontend.
 - `testing-agent.md`: pruebas creadas.
 - `review-agent.md`: candidato de mejora para ejercicio 2.
-- `dto-mapping-agent.md`: preparación conceptual para DTOs y mapeo.
+- `dto-mapping-agent.md`: documentación de DTOs y mapeo automático con MapStruct.
+
+## DTOs y mapeo automático
+
+Los DTOs son objetos de transporte que separan la API REST de las entidades JPA. En este proyecto se usan para exponer datos claros al frontend sin depender directamente de las relaciones internas de Hibernate.
+
+Se han añadido DTOs principales para `Equipo`, `Jugador` y `CartaFUT`, además de DTOs resumen para relaciones: `EquipoResumenDTO` y `JugadorResumenDTO`. Así, un jugador devuelve un equipo resumido y una carta devuelve un jugador resumido, evitando recursión y JSON excesivo.
+
+El mapeo automático se realiza con MapStruct mediante:
+
+- `EquipoMapper`
+- `JugadorMapper`
+- `CartaFUTMapper`
+
+Los endpoints siguen disponibles con las mismas rutas. El frontend puede seguir enviando relaciones como `{ "equipo": { "id": 1 } }` y `{ "jugador": { "id": 1 } }`.
 
 ## Guion básico de demo
 
 1. Levantar MySQL con `docker compose up -d`.
 2. Arrancar backend con `mvn spring-boot:run`.
-3. Abrir `http://localhost:8090/api/jugadores` y enseñar datos iniciales.
+3. Abrir `http://localhost:8081/api/jugadores` y enseñar datos iniciales.
 4. Arrancar frontend con `npm run dev`.
 5. Abrir `http://localhost:5173` y enseñar dashboard.
 6. Crear un jugador desde React seleccionando equipo.
@@ -148,7 +162,7 @@ Crear jugador desde React:
 
 ```text
 React formulario Jugadores
-→ POST http://localhost:8090/api/jugadores
+→ POST http://localhost:8081/api/jugadores
 → JugadorController
 → JugadorService
 → JugadorRepository
@@ -157,6 +171,6 @@ React formulario Jugadores
 → React actualiza listado
 ```
 
-## Preparación para ejercicio 4
+## Ejercicio 4
 
-En esta fase no se han implementado DTOs ni MapStruct. El proyecto queda listo para añadir DTOs después, separando las entidades JPA de los datos que se exponen en la API y creando mappers para transformar entre entidad y DTO.
+El backend ya incorpora DTOs y MapStruct. Los controladores reciben y devuelven DTOs, los servicios mantienen la lógica interna con entidades y las relaciones se resuelven por ID antes de guardar.

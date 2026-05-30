@@ -1,6 +1,8 @@
 package com.futmanager.controller;
 
+import com.futmanager.dto.JugadorDTO;
 import com.futmanager.entity.Jugador;
+import com.futmanager.mapper.JugadorMapper;
 import com.futmanager.service.JugadorService;
 import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,29 +19,33 @@ import org.springframework.web.bind.annotation.RestController;
 public class JugadorController {
 
     private final JugadorService jugadorService;
+    private final JugadorMapper jugadorMapper;
 
-    public JugadorController(JugadorService jugadorService) {
+    public JugadorController(JugadorService jugadorService, JugadorMapper jugadorMapper) {
         this.jugadorService = jugadorService;
+        this.jugadorMapper = jugadorMapper;
     }
 
     @GetMapping
-    public List<Jugador> listar() {
-        return jugadorService.listar();
+    public List<JugadorDTO> listar() {
+        return jugadorMapper.toDTOList(jugadorService.listar());
     }
 
     @GetMapping("/{id}")
-    public Jugador obtenerPorId(@PathVariable Long id) {
-        return jugadorService.obtenerPorId(id);
+    public JugadorDTO obtenerPorId(@PathVariable Long id) {
+        return jugadorMapper.toDTO(jugadorService.obtenerPorId(id));
     }
 
     @PostMapping
-    public Jugador crear(@RequestBody Jugador jugador) {
-        return jugadorService.crear(jugador);
+    public JugadorDTO crear(@RequestBody JugadorDTO jugadorDTO) {
+        Jugador jugador = jugadorMapper.toEntity(jugadorDTO);
+        return jugadorMapper.toDTO(jugadorService.crear(jugador));
     }
 
     @PutMapping("/{id}")
-    public Jugador actualizar(@PathVariable Long id, @RequestBody Jugador jugador) {
-        return jugadorService.actualizar(id, jugador);
+    public JugadorDTO actualizar(@PathVariable Long id, @RequestBody JugadorDTO jugadorDTO) {
+        Jugador jugador = jugadorMapper.toEntity(jugadorDTO);
+        return jugadorMapper.toDTO(jugadorService.actualizar(id, jugador));
     }
 
     @DeleteMapping("/{id}")
